@@ -7,7 +7,7 @@ Execute the following command
 
   git clone https://github.com/cpsource/backupDotViaTar.git
   
-Then modify the backup_directory variable in files backup_ubuntu.sh and backup-check.sh to point to where you wish your backup sets to be created and managed.
+Then modify the backup_directory variable in files backup_ubuntu.sh and backup-check.sh to point to where you wish your backup sets to be created and managed. It runs on Windows as well as Linux.
 
 # To Run
 
