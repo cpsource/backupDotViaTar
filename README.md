@@ -34,11 +34,11 @@ You can cleanup all your gits by
 Other scripts in the git have comments on what they do.
 # Cron
 You can set crontab -e to allow the backup script to run a midnight every day, or whatever.
+# Example
+
+  Backup everything except directories snap and .cache
+
+	./backupDotViaTar/backup_ubuntu.sh full -x '.cache' -x 'snap'
+
 # Other notes
 This was mostly written (99%) by ChatGPT4 and took about five hours, including this documentation.
-
-
-	
-	  
-
-
