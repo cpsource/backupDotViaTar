@@ -4,7 +4,7 @@
 day_of_week=$(date +%u)
 
 # Base command
-command="./backupDotViaTar/backup-ubuntu.sh full -x .cache -x snap -x .local"
+command="./backupDotViaTar/backup-ubuntu.sh full -g -x .cache -x snap -x .local"
 
 # Check if it's Tuesday through Sunday (2-7)
 if [ $day_of_week -ge 2 ] && [ $day_of_week -le 7 ]; then
