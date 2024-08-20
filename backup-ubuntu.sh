@@ -7,6 +7,23 @@
 # After creating the backup, it creates a soft link named 'backup-latest' pointing to the latest backup set.
 # The optional arguments '-x' add directories to the exclude list.
 
+#!/bin/bash
+
+# Function to display help message
+show_help() {
+    echo "Usage: $0 [full|partial] [-x <exclude-name>...] [-g] [-v]"
+    echo "full    : Include all directories in the backup."
+    echo "partial : Exclude .cache, snap, and venv directories from the backup."
+    echo "-x      : Exclude an additional directory from the backup."
+    echo "-g      : Create a compressed tar image of the backup directory."
+    echo "-v      : Enable verbose output for tar commands."
+    exit 1
+}
+
+# Initialize flags
+create_tar=false
+verbose_flag=""
+
 # Check the first argument and set the exclusion list accordingly
 backup_type="$1"
 case "$backup_type" in
@@ -17,15 +34,12 @@ case "$backup_type" in
     exclude_list=(./.cache ./snap ./venv)
     ;;
   *)
-    echo "Usage: $0 [full|partial] [-x <exclude-name>...]"
-    echo "full    : Include all directories in the backup."
-    echo "partial : Exclude .cache, snap, and venv directories from the backup."
-    echo "-x      : Exclude an additional directory from the backup."
-    exit 1
+    echo "Error: Missing or incorrect argument."
+    show_help
     ;;
 esac
 
-# Check for additional exclude directories
+# Check for additional exclude directories, -g flag, and -v flag
 shift
 while [ "$1" ]; do
   case "$1" in
@@ -43,12 +57,17 @@ while [ "$1" ]; do
         exit 1
       fi
       ;;
+    -g)
+      echo "The -g flag is present. A compressed tar image will be created."
+      create_tar=true
+      ;;
+    -v)
+      echo "The -v flag is present. Verbose mode enabled."
+      verbose_flag="v"
+      ;;
     *)
-      echo "Usage: $0 [full|partial] [-x <exclude-name>...]"
-      echo "full    : Include all directories in the backup."
-      echo "partial : Exclude .cache, snap, and venv directories from the backup."
-      echo "-x      : Exclude an additional directory from the backup."
-      exit 1
+      echo "Error: Invalid argument."
+      show_help
       ;;
   esac
   shift
@@ -71,17 +90,31 @@ backup_directory="/mnt/e/ubuntu-backups/backup-$current_date_time"
 mkdir -p "$backup_directory"
 
 # Build the tar command with the appropriate exclusions
-tar_command="tar -cf -"
+tar_command="tar -c${verbose_flag}f -"
 for exclude_dir in "${exclude_list[@]}"; do
   tar_command="$tar_command --exclude='$exclude_dir'"
 done
 tar_command="$tar_command '$source_directory'"
 
 # Create a tarball of the source directory with the appropriate exclusions, and extract it to the backup directory
-eval $tar_command | (cd "$backup_directory" && tar -xvf -)
+eval $tar_command | (cd "$backup_directory" && tar -x${verbose_flag}f -)
 
 # Print completion message
 echo "Backup completed successfully. Files are stored in: $backup_directory"
+
+# Execute the new code if the flag is true
+if $create_tar; then
+  echo "Creating a compressed tar image of the backup directory..."
+
+  # Define the output tar.gz file path
+  output_tar="/mnt/g/My Drive/ubuntu-backups/$(basename "$backup_directory").tar.gz"
+
+  # Create a compressed tar image of the entire backup directory
+  tar -c${verbose_flag}zf "$output_tar" -C "$(dirname "$backup_directory")" "$(basename "$backup_directory")"
+
+  # Print completion message
+  echo "Compressed tar image created at: $output_tar"
+fi
 
 # Create a soft link named 'backup-latest' pointing to the latest backup
 ln -sfn "$backup_directory" "/mnt/e/ubuntu-backups/backup-latest"
