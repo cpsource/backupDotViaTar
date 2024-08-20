@@ -31,7 +31,7 @@ case "$backup_type" in
     exclude_list=()
     ;;
   partial)
-    exclude_list=(./.cache ./snap ./venv)
+    exclude_list=(./.cache ./snap ./.local ./venv)
     ;;
   *)
     echo "Error: Missing or incorrect argument."
